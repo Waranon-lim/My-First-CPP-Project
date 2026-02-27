@@ -289,15 +289,116 @@ void restock()
 
 void viewInventory()
 {
-    cout << " view inventory\n";
+    ifstream file("inventory.csv");
+    string readLine;
+
+    cout << "Current Inventory\n"
+         << endl;
+    cout << "------------------------------\n"
+         << endl;
+    cout << left << setw(20) << "Product" << left << setw(10) << "Quantity" << endl;
+
+    while (getline(file, readLine))
+    {
+        stringstream ss(readLine);
+        string name;
+        int quantity;
+        getline(file, name, ',');
+        ss >> quantity;
+
+        cout << name << left << setw(15) << quantity << endl;
+    }
+    cout << "------------------------------\n"
+         << endl;
 }
 
 void userManagement()
 {
-    cout << " we have 1 m. user\n";
-}
+    ifstream userFile("user.csv");
+            cout
+        << "Current User\n"
+        << endl;
+    cout << "------------------------------\n"
+         << endl;
+    string readLine;
+    while (getline(userFile, readLine))
+        
+    {
+        string name, role, password;
 
+        stringstream ss(readLine);
+        getline(ss, name, ',');
+        getline(ss, password, ',');
+        getline(ss, role, ',');
+    
+
+    for(const auto &item : readLine)
+    {
+        cout << left << setw(15) << name << left << setw(10) << role << endl;
+    }
+    }
+    cout << "------------------------------\n"
+         << endl;
+}
 void sell()
 {
-    ofstream outfile("sales.csv", ios::app);
+    ifstream inFile("inventory.csv");
+    map<string, int> inventory;
+    string line;
+    while (getline(inFile, line)) {
+        stringstream ss(line);
+        string name;
+        int qty;
+        if (getline(ss, name, ',')) {
+            ss >> qty;
+            inventory[name] = qty;
+        }
+    }
+    inFile.close();
+
+    string productName;
+    int sellQty;
+    double pricePerUnit; 
+
+    cout << "Enter product name to sell: ";
+    cin >> productName;
+
+    if (inventory.find(productName) == inventory.end()) {
+        cout << "Error: Product not found!" << endl;
+        return;
+    }
+
+    cout << "Enter quantity to sell: ";
+    cin >> sellQty;
+
+    while (true) {
+    cout << "Enter quantity to sell: ";
+    cin >> sellQty;
+
+    if (inventory[productName] >= sellQty) {
+        break; 
+    } else {
+        cout << "Not enough! We only have " << inventory[productName] << ". Try again." << endl;
+    }
+}
+
+    cout << "Enter price per unit: ";
+    cin >> pricePerUnit;
+
+    inventory[productName] -= sellQty; 
+    double totalSalesPrice = sellQty * pricePerUnit;
+
+    ofstream salesFile("sales.csv", ios::app);
+    if (salesFile.is_open()) {
+        salesFile << productName << "," << sellQty << "," << totalSalesPrice << endl;
+        salesFile.close();
+    }
+
+    ofstream outInv("inventory.csv");
+    for (const auto &item : inventory) {
+        outInv << item.first << "," << item.second << endl;
+    }
+    outInv.close();
+
+    cout << "Sale completed! Total: " << totalSalesPrice << "$" << endl;
 }
